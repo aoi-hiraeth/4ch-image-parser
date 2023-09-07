@@ -4,6 +4,14 @@ import logging
 import re
 from bs4 import BeautifulSoup
 from user_agent import generate_user_agent
+import os
+import time
+
+
+# Создание уникальной папки на основе текущего времени
+folder_name = time.strftime("%Y%m%d%H%M%S")
+folder_path = os.path.join("src", folder_name)
+os.makedirs(folder_path, exist_ok=True)
 
 pattern = r"/(\d+\.[a-z]+)$"
 headers = {'User-Agent': generate_user_agent(device_type="desktop", os=('mac', 'linux'))}
@@ -33,7 +41,7 @@ async def main(url):
         match = re.search(pattern, item['href'])
         if match:
             name = str(match.group(1))
-            task = asyncio.create_task(download_file("https:" + item['href'], name))
+            task = asyncio.create_task(download_file("https:" + item['href'], os.path.join(folder_path, name)))
             tasks.append(task)
 
     await asyncio.gather(*tasks)
